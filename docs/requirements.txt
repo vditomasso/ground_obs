@@ -1,0 +1,11 @@
+astropy
+astropy
+detecta
+jplephem
+matplotlib
+numpy
+os
+pandas
+PyAstronomy
+scipy
+timeit
