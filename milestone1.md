@@ -1,13 +1,11 @@
----
-author:
-- 'Victoria DiTomasso, Martha Obasi, Matt Egan, Thomas Shay Hill'
-title: |
-  **Designing Software for Automatic Differentiation\
-  Milestone 1**
----
 
-Introduction {#sec:Intro}
-============
+# Designing Software for Automatic Differentiation
+
+# Milestone 1
+
+Victoria DiTomasso, Martha Obasi, Matt Egan, Thomas Shay Hill
+
+## Introduction
 
 Derivatives play an important role in a wide variety of scientific
 computing applications including sensitivity analysis, optimization, 3D
@@ -18,8 +16,7 @@ differentiable function $f(x)$ for any $x \in R$. Our package takes as
 inputs any differentiable function $f(x)$ and any point $x \in R$ and
 returns the derivative at point $x$.
 
-Background {#sec:Background}
-==========
+## Background
 
 The efficient and accurate calculation of derivatives is an integral
 task in many areas of science and engineering. Automatic differentiation
@@ -76,8 +73,7 @@ From the table, we have $v_1 = x^2$ and $\dot{v_1} = 2x$ therefore, the
 derivative can be expressed as $2x*sec^2(x^2)$. The forward mode is
 essentially an implementation of this method of calculating derivatives.
 
-How to Use {#sec:HowTo}
-==========
+## How to Use
 
 The framework works around the mvmtFloat object. To evaluate a function
 for a value, you need to create this value as a mvmtFloat. Simple
@@ -129,8 +125,7 @@ from AD import mvmtFloat
     > a**2*b = mvmtFloat with Value: 63, Derivative: [42 9]
 ```
 
-Software Organization {#sec:Organization}
-=====================
+## Software Organization
 
 The MVMT107/cs107-FinalProject repository is organized as follows:
 
@@ -157,8 +152,7 @@ been packaged using a framework.
 
 [`python setup.py install`]{style="background-color: light-gray"}
 
-Implementation {#sec:Implementation}
-==============
+## Implementation
 
 Automated Differentiation will be implemented using operator overloading
 and function overriding.
