@@ -1,6 +1,7 @@
 from __future__ import print_function, division # copied from pyasl
 from PyAstronomy.pyaC import pyaErrors as PE # copied from pyasl
 from PyAstronomy import funcFit as fuf # copied from pyasl
+from spectres import spectres # copied from Ian's O2/utils.py
 import numpy as np
 import timeit
 from detecta import detect_peaks
@@ -128,6 +129,7 @@ def redshift_pad_interp(new_lambda, flux_array, velocity):
     flx_arr_interp = np.clip(F_flux(new_lambda), 0.0, 1.0)
 
     return flx_arr_interp
+
 
 
 
@@ -266,3 +268,22 @@ def instrBroadGaussFast(wvl, flux, resolution, edgeHandling=None, fullout=False,
     else:
         return (result, fwhm)
 
+
+
+
+
+###
+### Copied from Ian's O2 utils.py
+###
+
+
+
+
+
+def resample(wav, wav_band, R, flux):
+    wav_min, wav_max = wav_band
+    wav_central = (wav_min + wav_max) / 2
+    wav_delta = wav_central / R
+    wav_resampled = np.arange(wav_min, wav_max, wav_delta)
+    flux_resampled = spectres(wav_resampled, wav, flux)
+    return wav_resampled, flux_resampled
