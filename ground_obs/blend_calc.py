@@ -93,6 +93,7 @@ def rv(obj_name, v_sun_star, obstime_range=['2020-01-01','2020-12-31'], obsloc='
     t2 = Time(obstime_range[-1])
     t2.format = 'jd'  # 'jd' could be a function input
 
+    # I'm not sure what the length of these steps is - Victoria 10/29/20
     times = Time(np.arange(t1.value, t2.value), format='jd')
 
     with coord.solar_system_ephemeris.set('jpl'):  # 'jpl' could be a function input
@@ -140,6 +141,8 @@ def blended_fraction(tel_spec_df, exo_spec_df, vel_range=[-25,25], resolution=np
     # State the minimum peak height and minimum peak distance for the peak ID algortihm below
     # mph = 0.07 # vals discussed with Mercedes - March 6 2018
 
+    ### THIS CODE SHOULD REBIN THE SPECTRA TO THE APPROPRIATE RESOLUTION -- MAYBE IN THE PREP_WL_FLUX_ARRAYS FUNCTION ? -V 10/29/20 ###
+
     tel_lambda, tel_flx, O22_lambda, O22_flux_rs = blend_calc_lib.prep_wl_flux_arrays(tel_spec_df, exo_spec_df, wl_range, exozeropt_shift)
 
     mean = np.mean(O22_lambda)
@@ -181,7 +184,7 @@ def blended_fraction(tel_spec_df, exo_spec_df, vel_range=[-25,25], resolution=np
     for ind in range(len(delta_arr)):
         print('Starting blend frac calculations for R =' + str(target_res[ind]))
         # ID Telluric valleys at R (aka negative peaks)
-        broadtelflx = pyasl.instrBroadGaussFast(tel_lambda, tel_flx, target_res[ind], edgeHandling='firstlast',
+        broadtelflx = blend_calc_lib.instrBroadGaussFast(tel_lambda, tel_flx, target_res[ind], edgeHandling='firstlast',
                                                 fullout=False, maxsig=None)
         e_indpeaks = detect_peaks(broadtelflx - np.max(broadtelflx), mph=mph_arr[ind], mpd=mpd, valley=True,
                                   show=False)  # must write mpd and mph explicitly
@@ -191,7 +194,7 @@ def blended_fraction(tel_spec_df, exo_spec_df, vel_range=[-25,25], resolution=np
 
         # print 'Amount of peaks in Telluric: '+str(len(e_indpeaks))
 
-        broad_flux = pyasl.instrBroadGaussFast(O22_lambda, O22_flux_rs, target_res[ind], edgeHandling='firstlast',
+        broad_flux = blend_calc_lib.instrBroadGaussFast(O22_lambda, O22_flux_rs, target_res[ind], edgeHandling='firstlast',
                                                fullout=False, maxsig=None)
         count_arr = np.array([])
         # tot_peaks_atR = len(detect_peaks(broad_flux - np.max(broad_flux), mph = mph_arr[ind], mpd = mpd, valley=True, show=True))
@@ -217,6 +220,7 @@ def blended_fraction(tel_spec_df, exo_spec_df, vel_range=[-25,25], resolution=np
                 if min(diff_arr) >= delta_arr[ind]:
                     count += (1.0 - flux_exoindpeaks[peak_index])
                 # if tel peak is closer to exo peak than one resolution element, then not resolvable and add zero.
+                ### NOTE THAT THIS DOES NOT USE THE FWHM OF THE NEIGHBORING SPECTRAL FEATURE, IT JUST USES THE PEAKS - V 10/29/20 ###
                 else:
                     count += 0.0
             count_arr = np.append(count_arr, count)
