@@ -145,6 +145,60 @@ def blended_fraction(tel_spec_df, exo_spec_df, vel_range=[-25,25], resolution=np
 
     tel_lambda, tel_flx, O22_lambda, O22_flux_rs = blend_calc_lib.prep_wl_flux_arrays(tel_spec_df, exo_spec_df, wl_range, exozeropt_shift)
 
+    ##############################################################################
+#    ### Rebin the spectra to the appropriate resolution -V 11/3/20 ###
+#    ### Edited from Ian's O2/notebook.ipynb ###
+#
+#    # Put the two spectra into a dictionary (two entries: tel, O2) each with two entries (wav, flux) that fits with Ian's loop
+#    # GOING FROM NM -> CM
+#    data = {'tel':{'wav':tel_lambda*1e-7,'flux':tel_flx},'O2':{'wav':O22_lambda*1e-7,'flux':O22_flux_rs}}
+#
+#    # Make wavelength range in wav_band in cm
+#    wav_band = (wl_range[0]*1e-7,wl_range[1]*1e-7)
+#
+##    print('wav_band = ',wav_band)
+##    print('min_tel, max_tel = ',min(data['tel']['wav']),max(data['tel']['wav']))
+##    print('min_02, max_02 = ',min(data['O2']['wav']),max(data['O2']['wav']))
+#
+#    # Hold resampled wav and flux for each R
+#    data_resampled = {R:{'tel':{}, 'O2':{}} for R in resolution}
+#    data_resampled["wav_band"] = wav_band
+#
+#    for R in resolution:
+##        wavs_check = [] # For array comparison later. Should be the same
+#        for model in ['tel', 'O2']:
+#            wav_resampled, flux_resampled = blend_calc_lib.resample(
+#                data[model]['wav'],
+#                wav_band,
+#                float(R),
+#                data[model]['flux'],
+#            )
+##            wavs_check.append(wav_resampled)
+#            data_resampled[R][model]["flux"] = flux_resampled
+#
+#        # Raise an error if resampled wavelengths are not the same for each model
+#        # Otherwise, save a "master" one to the top level of `data_resampled[R]`
+#        # for convenience.
+##        if (
+##            np.array_equal(wavs_check[0], wavs_check[1])
+##            and
+##            np.array_equal(wavs_check[0], wavs_check[2])
+##        ):
+##            # Add top-level key
+##            data_resampled[R]["wav"] = wavs_check[0]
+##        else:
+##            print("Error with wavelength resampling. Re-check input wavelengths.")
+##    print(data_resampled.keys())
+##    print(data_resampled[resolution[0]].keys())
+##    print(data.keys())
+##    print(data['O2'].keys())
+#
+#    # Getting data back to original form, as arrays in NANOMETERS
+#    tel_lambda, tel_flx, O22_lambda, O22_flux_rs = data['tel']['wav']*1e7, data_resampled[resolution[0]]['tel']['flux'], data['O2']['wav']*1e7, data_resampled[resolution[0]]['O2']['flux']
+    
+    ##############################################################################
+    ### Back to Juli's code ###
+    
     mean = np.mean(O22_lambda)
 
     print(fr'Starting code for O2 band near {np.round(mean)} nm...')

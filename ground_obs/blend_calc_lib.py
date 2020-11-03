@@ -134,9 +134,9 @@ def redshift_pad_interp(new_lambda, flux_array, velocity):
 
 
 
-###
+############################################################################
 ### Copied from pyasl broad.py, without the strict linearity requirement ###
-###
+############################################################################
 
 
 
@@ -272,9 +272,9 @@ def instrBroadGaussFast(wvl, flux, resolution, edgeHandling=None, fullout=False,
 
 
 
-###
-### Copied from Ian's O2 utils.py
-###
+############################################################################
+### Copied from Ian's O2 utils.py ###
+############################################################################
 
 
 
