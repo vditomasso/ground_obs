@@ -39,7 +39,7 @@ class Spectrum():
 
     def __str__(self):
         try:
-            return('Spectrum object with {} wavelength range = {}-{} {} and avg R = {}'.format(self.medium,np.round(self.wav_range[0]),np.round(self.wav_range[1]),self.wav_unit,np.round(np.mean(self.R))))
+            return('Spectrum object with {} wavelength range = {}-{} {} and avg R = {}'.format(self.medium,np.round(self.wav_range[0],2),np.round(self.wav_range[1],2),self.wav_unit,np.round(np.mean(self.R))))
         except AttributeError:
             return('Spectrum object was not initiated properly. \n Check that it has attributes: wav, flux, wav_range, R and medium.')
             
@@ -113,21 +113,21 @@ class Spectrum():
 
 
 ### Testing ###
-import data_io
-telluric_spec_file = 'Atm_Transmission_Kurucz_2005.txt'
-exo_spec_file = 'O2_1E6.txt'
+#import data_io
+#telluric_spec_file = 'Atm_Transmission_Kurucz_2005.txt'
+#exo_spec_file = 'O2_1E6.txt'
+#
+#tel_spec_df, exo_spec_df = data_io.load_data(data_io.get_data_file_path(telluric_spec_file), data_io.get_data_file_path(exo_spec_file))
+#
+#wav = np.array(tel_spec_df['wavelength'])
+#flux = np.array(tel_spec_df['flux'])
 
-tel_spec_df, exo_spec_df = data_io.load_data(data_io.get_data_file_path(telluric_spec_file), data_io.get_data_file_path(exo_spec_file))
-
-wav = np.array(tel_spec_df['wavelength'])
-flux = np.array(tel_spec_df['flux'])
-
-test_spec = Spectrum(wav, flux, 'nm')
+#test_spec = Spectrum(wav, flux, 'nm')
 #print(test_spec)
-test_spec.change_wav_range(750,780)
-print(test_spec)
+#test_spec.change_wav_range(750,780)
+#print('change_wav_range \n',test_spec)
 #test_spec.change_R(3e5)
-#print(type(test_spec.medium))
-test_spec.to_air()
-print(test_spec)
+#print('change_R \n',test_spec)
+#test_spec.to_air()
+#print('to_air \n',test_spec)
 
