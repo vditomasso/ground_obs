@@ -28,6 +28,7 @@ class Spectrum():
         self.R = self.R()
         self.wav_range = np.array([min(wav),max(wav)])
         self.wav_unit = u.Unit(wav_unit)
+        # Could add check that wavelength array is increasing
         try:
             self.wav_unit = u.Unit(wav_unit)
         except ValueError:
@@ -44,7 +45,7 @@ class Spectrum():
         self.wav_unit = u.Unit(new_unit)
  
  
- ### START WITH RESAMPLE ###
+ ### START WITH RESAMPLE -- it does not currently work ###
  
 ## From Ian's O2/utils.py
 # def resample(wav, wav_band, R, flux):
@@ -55,15 +56,26 @@ class Spectrum():
 #    flux_resampled = spectres(wav_resampled, wav, flux)
 #    return wav_resampled, flux_resampled
  
-    def resample(self, wav_min, wav_max, R):
-        '''Set the wavelength range and resolution of the Spectrum -- updates the wav, flux, wav_range and R of the Spectrum instance'''
-        wav_central = (wav_min + wav_max) / 2
-        wav_delta = wav_central / R
-        wav_resampled = np.arange(wav_min, wav_max, wav_delta)
-        flux_resampled = spectres(wav_resampled, self.wav, self.flux)
-        self.wav = wav_resampled
-        self.flux = flux_resampled
-        self.wav_range = np.array([min(wav),max(wav)])
+#    def resample(self, wav_min, wav_max, R):
+#        '''Set the wavelength range and resolution of the Spectrum -- updates the wav, flux, wav_range and R of the Spectrum instance'''
+#        wav_central = (wav_min + wav_max) / 2
+#        wav_delta = wav_central / R
+#        wav_resampled = np.arange(wav_min, wav_max, wav_delta)
+#        flux_resampled = spectres(wav_resampled, self.wav, self.flux)
+#        self.wav = wav_resampled
+#        self.flux = flux_resampled
+#        self.wav_range = np.array([min(wav),max(wav)])
+
+    def change_wav_range(self, wav_min, wav_max):
+        '''Change the wavelength range of the spectrum by updating the wav and flux attribute to only include the points that fall within the input wavelength range'''
+        indices = np.where((self.wav>wav_min)&(self.wav<wav_max))
+        if (min(self.wav)<wav_min) and (max(self.wav)>wav_max):
+        # Check that the input wav_min and wav_max are within the spectrum's original wav_range
+            self.wav_range = np.array([wav_min,wav_max])
+            self.wav = self.wav[indices]
+            self.flux = self.flux[indices]
+        else:
+            print('The input wavelength range ({}-{}) is not a subset of the initial wavelength range of this spectrum'.format(wav_min,wav_max))
 
     def change_R(self):
         '''Change the resolution of the spetrum -- updates the wav, flux and R attributes'''
@@ -87,7 +99,8 @@ test_spec = Spectrum(wav, flux, 'micron')
 #print(test_spec.wav_unit)
 #print(test_spec.R)
 print(test_spec.wav_range)
-print(test_spec.R)
-test_spec.resample(0.75,0.77,3e5)
+#print(test_spec.R)
+test_spec.change_wav_range(750,770)
+#test_spec.resample(0.75,0.77,3e5)
 print(test_spec.wav_range)
-print(test_spec.R)
+#print(test_spec.R)
