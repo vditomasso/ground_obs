@@ -23,7 +23,7 @@ class Spectrum():
                 print('Spectrum was not in increasing wavelength order. This has been corrected')
             self.wav = wav
             self.flux = flux
-            self.R = self._R()
+#            self.R = self._R()
             self.wav_range = np.array([min(wav),max(wav)])
             self.wav_unit = u.Unit(wav_unit)
             assert (medium =='vac') or (medium == 'air')
@@ -52,7 +52,7 @@ class Spectrum():
         if self.medium == 'air':
             print('Spectrum is already in air wavelengths')
         elif self.medium == 'vac':
-            R_before, unit_before = self._R(), self.wav_unit
+            unit_before = self.wav_unit
             self.to_unit('angstrom')
             s = 10**4/self.wav
             n = 1 + 0.0000834254 + 0.02406147 / (130-s**2) + 0.00015998 / (38.9-s**2)
@@ -60,9 +60,6 @@ class Spectrum():
             self.to_unit(unit_before) # change back to original unit
             self.wav_range = np.array([min(self.wav),max(self.wav)])
             self.medium = 'air'
-#            ### Maybe this should become a test in the testing module
-#            if self._R().any()!=R_before.any():
-#                print('Error: Resolution of the spectrum has changed')
         else:
             print('Error: self.medium is neither air nor vac')
             
@@ -73,7 +70,7 @@ class Spectrum():
         if self.medium=='vac':
             print('Spectrum is already in vacuum wavelengths')
         elif self.medium == 'air':
-            R_before, unit_before = self._R(), self.wav_unit
+            unit_before = self.wav_unit
             self.to_unit('angstrom')
             s = 10**4/self.wav
             n =1 + 0.00008336624212083 + 0.02408926869968 / (130.1065924522-s**2) + 0.0001599740894897 / (38.92568793293-s**2)
