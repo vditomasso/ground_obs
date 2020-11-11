@@ -59,21 +59,19 @@ class Spectrum():
         else:
             print('The input wavelength range ({}-{}) is not a subset of the initial wavelength range of this spectrum'.format(wav_min,wav_max))
 
-### change_R is under construction ###
     def change_R(self,R):
         '''Change the resolution of the spetrum -- updates the wav, flux and R attributes'''
         # Adapted from Ian's O2/utils.py resample function
+        ### ADD IN A CHECK THAT THE RESULTING SELF._R() ACTUALLY MATCHES THE INPUT R
         print('len(self.wav) before = ',len(self.wav))
         wav_min, wav_max = self.wav_range
         wav_central = (wav_min + wav_max) / 2
         wav_delta = wav_central / R
         wav_resampled = np.arange(wav_min, wav_max, wav_delta)
         flux_resampled = spectres(wav_resampled, self.wav, self.flux)
-        if (min(self.wav)==wav_min) and (max(self.wav)==wav_max):
+        if (np.round(min(self.wav))==np.round(wav_min)) and (np.round(max(self.wav))==np.round(wav_max)):
             self.wav = wav_resampled
             self.flux = flux_resampled
-            print('len(self.wav) after = ',len(self.wav))
-            print('self.R after = ',self._R())
             self.R = np.ones(self.wav.shape)*R
         else:
             print('Spectrum wav_range has changed')
@@ -97,13 +95,7 @@ test_spec.change_wav_range(750,780)
 
 print(test_spec)
 
-#print(test_spec.wav_unit)
-#test_spec.to_unit('cm')
-#print(test_spec.wav_unit)
-#print(test_spec.R)
-#print(test_spec.wav_range)
-#print(test_spec.R)
-#test_spec.change_wav_range(750,770)
-#test_spec.change_R(3e5)
-#print(test_spec.wav_range)
-#print(test_spec.R)
+test_spec.change_R(3e5)
+
+print(test_spec)
+
