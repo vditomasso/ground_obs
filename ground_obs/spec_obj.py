@@ -42,13 +42,16 @@ class Spectrum():
         
     def to_air(self):
     # Following VALD3: http://www.astro.uu.se/valdwiki/Air-to-vacuum%20conversion
-        R_before = self._R()
+    # This equation is for wavelength in Angstroms
         if self.medium == 'air':
             print('Spectrum is already in air wavelengths')
         elif self.medium == 'vac':
+            R_before, unit_before = self._R(), self.wav_unit
+            self.to_unit('angstrom')
             s = 10**4/self.wav
             n = 1 + 0.0000834254 + 0.02406147 / (130-s**2) + 0.00015998 / (38.9-s**2)
-            self.wav = self.wav / n
+            self.wav = self.wav / n # in Angstroms
+            self.to_unit(unit_before) # change back to original unit
             self.wav_range = np.array([min(self.wav),max(self.wav)])
             self.medium = 'air'
 #            ### Maybe this should become a test in the testing module
@@ -59,19 +62,27 @@ class Spectrum():
             
     def to_vac(self):
     # Following VALD3: http://www.astro.uu.se/valdwiki/Air-to-vacuum%20conversion
+    # This equation is for wavelength in Angstroms
         if self.medium=='vac':
             print('Spectrum is already in vacuum wavelengths')
         elif self.medium == 'air':
+            R_before, unit_before = self._R(), self.wav_unit
+            self.to_unit('angstrom')
             s = 10**4/self.wav
             n =1 + 0.00008336624212083 + 0.02408926869968 / (130.1065924522-s**2) + 0.0001599740894897 / (38.92568793293-s**2)
             self.wav = self.wav*n
+            self.to_unit(unit_before) # change back to original unit
             self.wav_range = np.array([min(self.wav),max(self.wav)])
             self.medium = 'vac'
         else:
             print('Error: self.medium is neither air nor vac')
 
     def to_unit(self,new_unit):
-        '''Update the wavelength unit of the Spectrum instance'''
+        '''Update the wav and wav_unit of the Spectrum instance'''
+        unit_before = self.wav_unit
+        wav_before = self.wav*u.Unit(unit_before)
+        wav_after = wav_before.to(u.Unit(new_unit))
+        self.wav = wav_after.value
         self.wav_unit = u.Unit(new_unit)
 
     def change_wav_range(self, wav_min, wav_max):
@@ -112,7 +123,7 @@ class Spectrum():
 #
 #wav = np.array(tel_spec_df['wavelength'])
 #flux = np.array(tel_spec_df['flux'])
-
+#
 #test_spec = Spectrum(wav, flux, 'nm')
 #print(test_spec)
 #test_spec.change_wav_range(750,780)
@@ -121,4 +132,6 @@ class Spectrum():
 #print('change_R \n',test_spec)
 #test_spec.to_air()
 #print('to_air \n',test_spec)
+#test_spec.to_vac()
+#print('to_vac \n',test_spec)
 
