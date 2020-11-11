@@ -1,16 +1,7 @@
 #!/bin/usr python3
 
 import numpy as np
-#import timeit
-#from detecta import detect_peaks
-#from PyAstronomy import pyasl
-#from scipy.interpolate import interp1d
 import astropy.units as u
-#from astropy.coordinates import SkyCoord
-#import astropy.coordinates as coord
-#from astropy.time import Time
-#from ground_obs import blend_calc_lib
-#from scipy import interpolate
 from spectres import spectres
 
 
