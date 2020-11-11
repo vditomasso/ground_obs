@@ -16,12 +16,13 @@ from spectres import spectres
 
 class Spectrum():
 
-    def __init__(self,wav,flux,wav_unit):
+    def __init__(self,wav,flux,wav_unit,medium):
         '''
         Initialize a Spectrum object
         wav: wavelength (array)
         flux: flux (array)
         wav_unit: wavelength unit (string)
+        medium: either air or vac (string)
         '''
         self.wav = wav
         self.flux = flux
@@ -42,6 +43,28 @@ class Spectrum():
         diffs = np.diff(self.wav)  # Calculates Delta lambdas
         diffs = np.append(diffs, diffs[-1])  # Keeps len(diffs) == len(wavs)
         return self.wav / diffs  # R = lambda / Delta lambda
+        
+    def vac2air(self):
+    # Following VALD3: http://www.astro.uu.se/valdwiki/Air-to-vacuum%20conversion
+        if self.medium == 'air':
+            return('Spectrum is already in air wavelengths')
+        elif self.medium == 'vac':
+            s = 10**4/self.wav
+            n = 1 + 0.0000834254 + 0.02406147 / (130-s**2) + 0.00015998 / (38.9-s**2)
+            self.wav = self.wav / n
+            self.medium = 'air'
+        else:
+            return('self.medium is neither air nor vac')
+            
+    def air2vac(self):
+    # Following VALD3: http://www.astro.uu.se/valdwiki/Air-to-vacuum%20conversion
+        if self.medium=='vac':
+            return('Spectrum is already in vacuum wavelengths')
+        elif self.medium == 'air':
+            s = 10**4/self.wav
+            n =1 + 0.00008336624212083 + 0.02408926869968 / (130.1065924522-s**2) + 0.0001599740894897 / (38.92568793293-s**2)
+            self.wav = self.wav*n
+            self.medium = 'vac'
 
     def to_unit(self,new_unit):
         '''Update the wavelength unit of the Spectrum instance'''
@@ -88,14 +111,9 @@ wav = np.array(tel_spec_df['wavelength'])
 flux = np.array(tel_spec_df['flux'])
 
 test_spec = Spectrum(wav, flux, 'nm')
-
 print(test_spec)
-
 test_spec.change_wav_range(750,780)
-
 print(test_spec)
-
 test_spec.change_R(3e5)
-
 print(test_spec)
 
