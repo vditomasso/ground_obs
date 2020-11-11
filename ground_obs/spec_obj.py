@@ -16,6 +16,11 @@ class Spectrum():
         medium: either 'vac' or 'air' (string), default: 'vac'
         '''
         try:
+            # If the wavelength array is not increasing order, flip the order of the wav and flux arrays
+            if (min(wav)!=wav[0]) and (max(wav)!=wav[-1]):
+                wav = wav[::-1]
+                flux = flux[::-1]
+                print('Spectrum was not in increasing wavelength order. This has been corrected')
             self.wav = wav
             self.flux = flux
             self.R = self._R()
@@ -41,8 +46,9 @@ class Spectrum():
         return self.wav / diffs  # R = lambda / Delta lambda
         
     def to_air(self):
-    # Following VALD3: http://www.astro.uu.se/valdwiki/Air-to-vacuum%20conversion
-    # This equation is for wavelength in Angstroms
+        '''Change from vacuum to air wavelengths
+        Following VALD3: http://www.astro.uu.se/valdwiki/Air-to-vacuum%20conversion
+        This equation is for wavelength in Angstroms'''
         if self.medium == 'air':
             print('Spectrum is already in air wavelengths')
         elif self.medium == 'vac':
@@ -61,8 +67,9 @@ class Spectrum():
             print('Error: self.medium is neither air nor vac')
             
     def to_vac(self):
-    # Following VALD3: http://www.astro.uu.se/valdwiki/Air-to-vacuum%20conversion
-    # This equation is for wavelength in Angstroms
+        ''' Change from air to vacuum wavelengths
+        Following VALD3: http://www.astro.uu.se/valdwiki/Air-to-vacuum%20conversion
+        This equation is for wavelength in Angstroms'''
         if self.medium=='vac':
             print('Spectrum is already in vacuum wavelengths')
         elif self.medium == 'air':
@@ -115,16 +122,19 @@ class Spectrum():
 
 
 ### Testing ###
-#import data_io
-#telluric_spec_file = 'Atm_Transmission_Kurucz_2005.txt'
-#exo_spec_file = 'O2_1E6.txt'
-#
-#tel_spec_df, exo_spec_df = data_io.load_data(data_io.get_data_file_path(telluric_spec_file), data_io.get_data_file_path(exo_spec_file))
-#
+import data_io
+telluric_spec_file = 'Atm_Transmission_Kurucz_2005.txt'
+exo_spec_file = 'O2_1E6.txt'
+
+tel_spec_df, exo_spec_df = data_io.load_data(data_io.get_data_file_path(telluric_spec_file), data_io.get_data_file_path(exo_spec_file))
+
 #wav = np.array(tel_spec_df['wavelength'])
 #flux = np.array(tel_spec_df['flux'])
-#
-#test_spec = Spectrum(wav, flux, 'nm')
+
+wav = np.array(exo_spec_df['wavelength'])
+flux = np.array(exo_spec_df['flux'])
+
+test_spec = Spectrum(wav, flux, 'nm')
 #print(test_spec)
 #test_spec.change_wav_range(750,780)
 #print('change_wav_range \n',test_spec)
