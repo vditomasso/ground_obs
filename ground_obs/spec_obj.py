@@ -4,7 +4,6 @@ import numpy as np
 import astropy.units as u
 from spectres import spectres
 
-
 class Spectrum():
 
     def __init__(self,wav,flux,wav_unit,medium='vac'):
@@ -47,7 +46,7 @@ class Spectrum():
         
     def normalize(self):
         new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium)
-        new_Spectrum.normalize()
+        new_Spectrum._normalize()
         return(new_Spectrum)
     
     def _normalize(self):
