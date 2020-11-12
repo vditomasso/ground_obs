@@ -45,6 +45,10 @@ class Spectrum():
         diffs = np.append(diffs, diffs[-1])  # Keeps len(diffs) == len(wavs)
         return self.wav / diffs  # R = lambda / Delta lambda
         
+    def normalize(self):
+        '''Normalize self.flux by dividing by the maximum flux value in the spectrum'''
+        self.flux = self.flux/np.max(self.flux)
+        
     def to_air(self):
         '''Change from vacuum to air wavelengths
         Following VALD3: http://www.astro.uu.se/valdwiki/Air-to-vacuum%20conversion
@@ -83,11 +87,14 @@ class Spectrum():
 
     def to_unit(self,new_unit):
         '''Update the wav and wav_unit of the Spectrum instance'''
-        unit_before = self.wav_unit
-        wav_before = self.wav*u.Unit(unit_before)
-        wav_after = wav_before.to(u.Unit(new_unit))
-        self.wav = wav_after.value
-        self.wav_unit = u.Unit(new_unit)
+        if new_unit == self.wav_unit:
+            print('Spectrum is already in unit {}'.format(new_unit))
+        else:
+            unit_before = self.wav_unit
+            wav_before = self.wav*u.Unit(unit_before)
+            wav_after = wav_before.to(u.Unit(new_unit))
+            self.wav = wav_after.value
+            self.wav_unit = u.Unit(new_unit)
 
     def change_wav_range(self, wav_min, wav_max):
         '''Change the wavelength range of the spectrum -- updates the wav and flux attribute to only include the points that fall within the input wavelength range'''
@@ -119,19 +126,19 @@ class Spectrum():
 
 
 ### Testing ###
-import data_io
-telluric_spec_file = 'Atm_Transmission_Kurucz_2005.txt'
-exo_spec_file = 'O2_1E6.txt'
-
-tel_spec_df, exo_spec_df = data_io.load_data(data_io.get_data_file_path(telluric_spec_file), data_io.get_data_file_path(exo_spec_file))
-
-#wav = np.array(tel_spec_df['wavelength'])
-#flux = np.array(tel_spec_df['flux'])
-
-wav = np.array(exo_spec_df['wavelength'])
-flux = np.array(exo_spec_df['flux'])
-
-test_spec = Spectrum(wav, flux, 'nm')
+#import data_io
+#telluric_spec_file = 'Atm_Transmission_Kurucz_2005.txt'
+#exo_spec_file = 'O2_1E6.txt'
+#
+#tel_spec_df, exo_spec_df = data_io.load_data(data_io.get_data_file_path(telluric_spec_file), data_io.get_data_file_path(exo_spec_file))
+#
+##wav = np.array(tel_spec_df['wavelength'])
+##flux = np.array(tel_spec_df['flux'])
+#
+#wav = np.array(exo_spec_df['wavelength'])
+#flux = np.array(exo_spec_df['flux'])
+#
+#test_spec = Spectrum(wav, flux, 'nm')
 #print(test_spec)
 #test_spec.change_wav_range(750,780)
 #print('change_wav_range \n',test_spec)
