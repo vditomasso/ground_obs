@@ -3,6 +3,7 @@
 import numpy as np
 import astropy.units as u
 from spectres import spectres
+from PyAstronomy import pyasl
 
 class Spectrum():
 
@@ -106,14 +107,18 @@ class Spectrum():
 
     def _to_unit(self,new_unit):
         '''Update the wav and wav_unit of the Spectrum instance'''
-        if new_unit == self.wav_unit:
-            print('Spectrum is already in unit {}'.format(new_unit))
-        else:
-            unit_before = self.wav_unit
-            wav_before = self.wav*u.Unit(unit_before)
-            wav_after = wav_before.to(u.Unit(new_unit))
-            self.wav = wav_after.value
-            self.wav_unit = u.Unit(new_unit)
+        # Catch error is new_unit is not an Astropy unit
+        try:
+            if new_unit == self.wav_unit:
+                print('Spectrum is already in unit {}'.format(new_unit))
+            else:
+                unit_before = self.wav_unit
+                wav_before = self.wav*u.Unit(unit_before)
+                wav_after = wav_before.to(u.Unit(new_unit))
+                self.wav = wav_after.value
+                self.wav_unit = u.Unit(new_unit)
+        except ValueError:
+            print('ValueError: {} is not an astropy unit. \n Maybe you would like cm, micron, or nm?'.format(new_unit))
 
     def change_wav_range(self, wav_min, wav_max):
         new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium)
@@ -154,6 +159,31 @@ class Spectrum():
         else:
             print('Error: Spectrum wav_range has changed')
 
+    def doppler_shift(self,v,v_unitlen='km',v_unittime='second'):
+        new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium)
+        new_Spectrum._doppler_shift(v,v_unitlen,v_unittime)
+        return(new_Spectrum)
+
+    def _doppler_shift(self,v,v_unitlen='km',v_unittime='second'):
+        '''Doppler shift using pyasl, adapted from Ian's O2/notebook.ipynb
+        Optional v_unitlen and v_unittime inputs incase v is not in km/s'''
+        # Catch error if v units are not in Astropy
+        try:
+            # Change wav_unit to A for pyasl
+            wav_unit_before = self.wav_unit
+            self._to_unit('angstrom')
+            # Change v to km/s if necessary
+            if u.Unit(v_unitlen) != u.km or u.Unit(v_unittime) != u.second:
+                v = v*(u.Unit(v_unitlen)/u.Unit(v_unittime))
+                v = v.to(u.km/u.second)
+            self.flux, _ = pyasl.dopplerShift(
+                                            self.wav,
+                                            self.flux,
+                                            v,
+                                            edgeHandling="firstlast")
+            self._to_unit(wav_unit_before)
+        except ValueError:
+            print('ValueError: {} and/or {} is not an astropy unit. \n Maybe you would like km or m, hour or second?'.format(v_unitlen,v_unittime))
 
 ### Testing ###
 #import data_io
