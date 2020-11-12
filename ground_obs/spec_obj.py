@@ -23,7 +23,7 @@ class Spectrum():
                 print('Spectrum was not in increasing wavelength order. This has been corrected')
             self.wav = wav
             self.flux = flux
-#            self.R = self._R()
+            self.R = self._R()
             self.wav_range = np.array([min(wav),max(wav)])
             self.wav_unit = u.Unit(wav_unit)
             assert (medium =='vac') or (medium == 'air')
@@ -47,7 +47,8 @@ class Spectrum():
         
     def normalize(self):
         new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium)
-        return(new_Spectrum.normalize())
+        new_Spectrum.normalize()
+        return(new_Spectrum)
     
     def _normalize(self):
         '''Normalize self.flux by dividing by the maximum flux value in the spectrum'''
@@ -55,7 +56,8 @@ class Spectrum():
         
     def to_air(self):
         new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium)
-        return(new_Spectrum._to_air())
+        new_Spectrum._to_air()
+        return(new_Spectrum)
 
     def _to_air(self):
         '''Change from vacuum to air wavelengths
@@ -77,7 +79,8 @@ class Spectrum():
          
     def to_vac(self):
         new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium)
-        return(new_Spectrum._to_vac())
+        new_Spectrum._to_vac()
+        return(new_Spectrum)
 
     def _to_vac(self):
         ''' Change from air to vacuum wavelengths
@@ -99,7 +102,8 @@ class Spectrum():
 
     def to_unit(self, new_unit):
         new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium)
-        return(new_Spectrum._to_unit(new_unit))
+        new_Spectrum._to_unit(new_unit)
+        return(new_Spectrum)
 
     def _to_unit(self,new_unit):
         '''Update the wav and wav_unit of the Spectrum instance'''
@@ -114,7 +118,8 @@ class Spectrum():
 
     def change_wav_range(self, wav_min, wav_max):
         new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium)
-        return(new_Spectrum._change_wav_range(wav_min, wav_max))
+        new_Spectrum._change_wav_range(wav_min, wav_max)
+        return(new_Spectrum)
 
     def _change_wav_range(self, wav_min, wav_max):
         '''Change the wavelength range of the spectrum -- updates the wav and flux attribute to only include the points that fall within the input wavelength range'''
@@ -125,12 +130,14 @@ class Spectrum():
             self.wav_range = np.array([wav_min,wav_max])
             self.wav = self.wav[indices]
             self.flux = self.flux[indices]
+            return(self)
         else:
             print('Error: The input wavelength range ({}-{}) is not a subset of the initial wavelength range of this spectrum'.format(wav_min,wav_max))
 
     def change_R(self, R):
         new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium)
-        return(new_Spectrum._change_R(R))
+        new_Spectrum._change_R(R)
+        return(new_Spectrum)
 
     def _change_R(self,R):
         '''Change the resolution of the spetrum -- updates the wav, flux and R attributes'''
@@ -156,20 +163,27 @@ class Spectrum():
 #
 #tel_spec_df, exo_spec_df = data_io.load_data(data_io.get_data_file_path(telluric_spec_file), data_io.get_data_file_path(exo_spec_file))
 #
-##wav = np.array(tel_spec_df['wavelength'])
-##flux = np.array(tel_spec_df['flux'])
+#wav = np.array(tel_spec_df['wavelength'])
+#flux = np.array(tel_spec_df['flux'])
 #
 #wav = np.array(exo_spec_df['wavelength'])
 #flux = np.array(exo_spec_df['flux'])
 #
 #test_spec = Spectrum(wav, flux, 'nm')
+#print(test_spec.flux)
+#print(test_spec.wav)
+#print(test_spec.wav_unit)
+#print(test_spec.medium)
+
 #print(test_spec)
-#test_spec.change_wav_range(750,780)
-#print('change_wav_range \n',test_spec)
-#test_spec.change_R(3e5)
+#test_spec2 = test_spec.change_wav_range(750,780)
+#print('change_wav_range:')
+#print('test_spec =\n',test_spec)
+#print('test_spec2 =\n',test_spec2)
+#test_spec = test_spec.change_R(3e5)
 #print('change_R \n',test_spec)
-#test_spec.to_air()
+#test_spec = test_spec.to_air()
 #print('to_air \n',test_spec)
-#test_spec.to_vac()
+#test_spec = test_spec.to_vac()
 #print('to_vac \n',test_spec)
 
