@@ -46,10 +46,18 @@ class Spectrum():
         return self.wav / diffs  # R = lambda / Delta lambda
         
     def normalize(self):
+        new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium)
+        return(new_Spectrum.normalize())
+    
+    def _normalize(self):
         '''Normalize self.flux by dividing by the maximum flux value in the spectrum'''
         self.flux = self.flux/np.max(self.flux)
         
     def to_air(self):
+        new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium)
+        return(new_Spectrum._to_air())
+
+    def _to_air(self):
         '''Change from vacuum to air wavelengths
         Following VALD3: http://www.astro.uu.se/valdwiki/Air-to-vacuum%20conversion
         This equation is for wavelength in Angstroms'''
@@ -57,17 +65,21 @@ class Spectrum():
             print('Spectrum is already in air wavelengths')
         elif self.medium == 'vac':
             unit_before = self.wav_unit
-            self.to_unit('angstrom')
+            self._to_unit('angstrom')
             s = 10**4/self.wav
             n = 1 + 0.0000834254 + 0.02406147 / (130-s**2) + 0.00015998 / (38.9-s**2)
             self.wav = self.wav / n # in Angstroms
-            self.to_unit(unit_before) # change back to original unit
+            self._to_unit(unit_before) # change back to original unit
             self.wav_range = np.array([min(self.wav),max(self.wav)])
             self.medium = 'air'
         else:
             print('Error: self.medium is neither air nor vac')
-            
+         
     def to_vac(self):
+        new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium)
+        return(new_Spectrum._to_vac())
+
+    def _to_vac(self):
         ''' Change from air to vacuum wavelengths
         Following VALD3: http://www.astro.uu.se/valdwiki/Air-to-vacuum%20conversion
         This equation is for wavelength in Angstroms'''
@@ -75,17 +87,21 @@ class Spectrum():
             print('Spectrum is already in vacuum wavelengths')
         elif self.medium == 'air':
             unit_before = self.wav_unit
-            self.to_unit('angstrom')
+            self._to_unit('angstrom')
             s = 10**4/self.wav
             n =1 + 0.00008336624212083 + 0.02408926869968 / (130.1065924522-s**2) + 0.0001599740894897 / (38.92568793293-s**2)
             self.wav = self.wav*n
-            self.to_unit(unit_before) # change back to original unit
+            self._to_unit(unit_before) # change back to original unit
             self.wav_range = np.array([min(self.wav),max(self.wav)])
             self.medium = 'vac'
         else:
             print('Error: self.medium is neither air nor vac')
 
-    def to_unit(self,new_unit):
+    def to_unit(self, new_unit):
+        new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium)
+        return(new_Spectrum._to_unit(new_unit))
+
+    def _to_unit(self,new_unit):
         '''Update the wav and wav_unit of the Spectrum instance'''
         if new_unit == self.wav_unit:
             print('Spectrum is already in unit {}'.format(new_unit))
@@ -97,6 +113,10 @@ class Spectrum():
             self.wav_unit = u.Unit(new_unit)
 
     def change_wav_range(self, wav_min, wav_max):
+        new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium)
+        return(new_Spectrum._change_wav_range(wav_min, wav_max))
+
+    def _change_wav_range(self, wav_min, wav_max):
         '''Change the wavelength range of the spectrum -- updates the wav and flux attribute to only include the points that fall within the input wavelength range'''
         ### ADD IN A CHECK THAT THE RESULTING MIN(SELF.WAV) AND MAX(SELF.WAV) ACTUALLY MATCH THE INPUT WAV_MIN AND WAV_MAX
         indices = np.where((self.wav>wav_min)&(self.wav<wav_max))
@@ -108,7 +128,11 @@ class Spectrum():
         else:
             print('Error: The input wavelength range ({}-{}) is not a subset of the initial wavelength range of this spectrum'.format(wav_min,wav_max))
 
-    def change_R(self,R):
+    def change_R(self, R):
+        new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium)
+        return(new_Spectrum._change_R(R))
+
+    def _change_R(self,R):
         '''Change the resolution of the spetrum -- updates the wav, flux and R attributes'''
         # Adapted from Ian's O2/utils.py resample function
         ### ADD IN A CHECK THAT THE RESULTING SELF._R() ACTUALLY MATCHES THE INPUT R
