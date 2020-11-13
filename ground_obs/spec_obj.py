@@ -7,7 +7,7 @@ from PyAstronomy import pyasl
 
 class Spectrum():
 
-    def __init__(self,wav,flux,wav_unit,medium='vac'):
+    def __init__(self,wav,flux,wav_unit,medium='vac',name='Spectrum'):
         '''
         Initialize a Spectrum object
         wav: wavelength (array)
@@ -20,12 +20,13 @@ class Spectrum():
             if (min(wav)!=wav[0]) and (max(wav)!=wav[-1]):
                 wav = wav[::-1]
                 flux = flux[::-1]
-                print('Spectrum was not in increasing wavelength order. This has been corrected')
+                print('Spectrum "{}" was not in increasing wavelength order. This has been corrected'.format(self.name))
             self.wav = wav
             self.flux = flux
             self.R = self._R()
             self.wav_range = np.array([min(wav),max(wav)])
             self.wav_unit = u.Unit(wav_unit)
+            self.name=name
             assert (medium =='vac') or (medium == 'air')
             self.medium = medium
         except ValueError:
@@ -35,9 +36,9 @@ class Spectrum():
 
     def __str__(self):
         try:
-            return('Spectrum object with {} wavelength range = {}-{} {} and avg R = {}'.format(self.medium,np.round(self.wav_range[0],2),np.round(self.wav_range[1],2),self.wav_unit,np.round(np.mean(self.R))))
+            return('Spectrum object "{}" with {} wavelength range = {}-{} {} and avg R = {}'.format(self.name,self.medium,np.round(self.wav_range[0],2),np.round(self.wav_range[1],2),self.wav_unit,np.round(np.mean(self.R))))
         except AttributeError:
-            return('Spectrum object was not initiated properly. \n Check that it has attributes: wav, flux, wav_range, R and medium.')
+            return('Spectrum object was not initiated properly. \n Check that it has attributes: wav, flux, wav_range, R, medium and name.')
             
     def _R(self):
         '''Find the resolution of the Spectrum'''
@@ -46,7 +47,7 @@ class Spectrum():
         return self.wav / diffs  # R = lambda / Delta lambda
         
     def normalize(self):
-        new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium)
+        new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium, self.name)
         new_Spectrum._normalize()
         return(new_Spectrum)
     
@@ -55,7 +56,7 @@ class Spectrum():
         self.flux = self.flux/np.max(self.flux)
         
     def to_air(self):
-        new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium)
+        new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium, self.name)
         new_Spectrum._to_air()
         return(new_Spectrum)
 
@@ -64,7 +65,7 @@ class Spectrum():
         Following VALD3: http://www.astro.uu.se/valdwiki/Air-to-vacuum%20conversion
         This equation is for wavelength in Angstroms'''
         if self.medium == 'air':
-            print('Spectrum is already in air wavelengths')
+            print('Spectrum "{}" is already in air wavelengths'.format(self.name))
         elif self.medium == 'vac':
             unit_before = self.wav_unit
             self._to_unit('angstrom')
@@ -78,7 +79,7 @@ class Spectrum():
             print('Error: self.medium is neither air nor vac')
          
     def to_vac(self):
-        new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium)
+        new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium, self.name)
         new_Spectrum._to_vac()
         return(new_Spectrum)
 
@@ -87,7 +88,7 @@ class Spectrum():
         Following VALD3: http://www.astro.uu.se/valdwiki/Air-to-vacuum%20conversion
         This equation is for wavelength in Angstroms'''
         if self.medium=='vac':
-            print('Spectrum is already in vacuum wavelengths')
+            print('Spectrum "{}" is already in vacuum wavelengths'.format(self.name))
         elif self.medium == 'air':
             unit_before = self.wav_unit
             self._to_unit('angstrom')
@@ -101,7 +102,7 @@ class Spectrum():
             print('Error: self.medium is neither air nor vac')
 
     def to_unit(self, new_unit):
-        new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium)
+        new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium, self.name)
         new_Spectrum._to_unit(new_unit)
         return(new_Spectrum)
 
@@ -110,7 +111,7 @@ class Spectrum():
         # Catch error is new_unit is not an Astropy unit
         try:
             if new_unit == self.wav_unit:
-                print('Spectrum is already in unit {}'.format(new_unit))
+                print('Spectrum "{}" is already in unit {}'.format(self.name, new_unit))
             else:
                 unit_before = self.wav_unit
                 wav_before = self.wav*u.Unit(unit_before)
@@ -121,7 +122,7 @@ class Spectrum():
             print('ValueError: {} is not an astropy unit. \n Maybe you would like cm, micron, or nm?'.format(new_unit))
 
     def change_wav_range(self, wav_min, wav_max):
-        new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium)
+        new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium, self.name)
         new_Spectrum._change_wav_range(wav_min, wav_max)
         return(new_Spectrum)
 
@@ -136,10 +137,10 @@ class Spectrum():
             self.flux = self.flux[indices]
             return(self)
         else:
-            print('Error: The input wavelength range ({}-{}) is not a subset of the initial wavelength range of this spectrum'.format(wav_min,wav_max))
+            print('Error: The input wavelength range ({}-{}) is not a subset of the initial wavelength range of spectrum "{}"'.format(wav_min,wav_max,self.name))
 
     def change_R(self, R):
-        new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium)
+        new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium, self.name)
         new_Spectrum._change_R(R)
         return(new_Spectrum)
 
@@ -157,10 +158,10 @@ class Spectrum():
             self.flux = flux_resampled
             self.R = np.ones(self.wav.shape)*R
         else:
-            print('Error: Spectrum wav_range has changed')
+            print('Error: Wav_range of Spectrum "{}" has changed'.format(self.name))
 
     def doppler_shift(self,v,v_unitlen='km',v_unittime='second'):
-        new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium)
+        new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium, self.name)
         new_Spectrum._doppler_shift(v,v_unitlen,v_unittime)
         return(new_Spectrum)
 
