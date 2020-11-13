@@ -53,6 +53,7 @@ class Spectrum():
     
     def _normalize(self):
         '''Normalize self.flux by dividing by the maximum flux value in the spectrum'''
+        print('This is not a proper normalization function! This simply divides the flux values in the Spectrum by the maximum flux value! Use at your own risk')
         self.flux = self.flux/np.max(self.flux)
         
     def to_air(self):
