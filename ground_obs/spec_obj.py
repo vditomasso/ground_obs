@@ -17,6 +17,7 @@ class Spectrum():
         '''
         try:
             # If the wavelength array is not increasing order, flip the order of the wav and flux arrays
+            self.name=name
             if (min(wav)!=wav[0]) and (max(wav)!=wav[-1]):
                 wav = wav[::-1]
                 flux = flux[::-1]
@@ -26,7 +27,6 @@ class Spectrum():
             self.R = self._R()
             self.wav_range = np.array([min(wav),max(wav)])
             self.wav_unit = u.Unit(wav_unit)
-            self.name=name
             assert (medium =='vac') or (medium == 'air')
             self.medium = medium
         except ValueError:
@@ -36,7 +36,7 @@ class Spectrum():
 
     def __str__(self):
         try:
-            return('Spectrum object "{}" with {} wavelength range = {}-{} {} and avg R = {}'.format(self.name,self.medium,np.round(self.wav_range[0],2),np.round(self.wav_range[1],2),self.wav_unit,np.round(np.mean(self.R))))
+            return('Spectrum object "{}" with {} wavelength range = {}-{} {} and avg R = {}'.format(self.name,self.medium,np.round(self.wav_range[0],5),np.round(self.wav_range[1],5),self.wav_unit,np.round(np.mean(self.R))))
         except AttributeError:
             return('Spectrum object was not initiated properly. \n Check that it has attributes: wav, flux, wav_range, R, medium and name.')
             
@@ -118,6 +118,7 @@ class Spectrum():
                 wav_after = wav_before.to(u.Unit(new_unit))
                 self.wav = wav_after.value
                 self.wav_unit = u.Unit(new_unit)
+                self.wav_range = np.array([min(self.wav),max(self.wav)])
         except ValueError:
             print('ValueError: {} is not an astropy unit. \n Maybe you would like cm, micron, or nm?'.format(new_unit))
 
@@ -132,15 +133,15 @@ class Spectrum():
         indices = np.where((self.wav>wav_min)&(self.wav<wav_max))
         if (min(self.wav)<wav_min) and (max(self.wav)>wav_max):
         # Check that the input wav_min and wav_max are within the spectrum's original wav_range
-            self.wav_range = np.array([wav_min,wav_max])
             self.wav = self.wav[indices]
             self.flux = self.flux[indices]
+            self.wav_range = np.array([wav_min,wav_max])
             return(self)
         else:
             print('Error: The input wavelength range ({}-{}) is not a subset of the initial wavelength range of spectrum "{}"'.format(wav_min,wav_max,self.name))
 
     def change_R(self, R):
-        new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium, self.name)
+        new_Spectrum = Spectrum(self.wav,self.flux,self.wav_unit,self.medium,self.name)
         new_Spectrum._change_R(R)
         return(new_Spectrum)
 
@@ -157,6 +158,7 @@ class Spectrum():
             self.wav = wav_resampled
             self.flux = flux_resampled
             self.R = np.ones(self.wav.shape)*R
+            self.wav_range = np.array([min(self.wav),max(self.wav)])
         else:
             print('Error: Wav_range of Spectrum "{}" has changed'.format(self.name))
 
@@ -177,11 +179,12 @@ class Spectrum():
             if u.Unit(v_unitlen) != u.km or u.Unit(v_unittime) != u.second:
                 v = v*(u.Unit(v_unitlen)/u.Unit(v_unittime))
                 v = v.to(u.km/u.second)
-            self.flux, _ = pyasl.dopplerShift(
+            flux_shifted, _ = pyasl.dopplerShift(
                                             self.wav,
                                             self.flux,
                                             v,
                                             edgeHandling="firstlast")
+            self.flux = flux_shifted
             self._to_unit(wav_unit_before)
         except ValueError:
             print('ValueError: {} and/or {} is not an astropy unit. \n Maybe you would like km or m, hour or second?'.format(v_unitlen,v_unittime))
@@ -195,25 +198,32 @@ class Spectrum():
 #
 #wav = np.array(tel_spec_df['wavelength'])
 #flux = np.array(tel_spec_df['flux'])
-#
-#wav = np.array(exo_spec_df['wavelength'])
-#flux = np.array(exo_spec_df['flux'])
-#
-#test_spec = Spectrum(wav, flux, 'nm')
-#print(test_spec.flux)
-#print(test_spec.wav)
-#print(test_spec.wav_unit)
-#print(test_spec.medium)
-
+###
+###wav = np.array(exo_spec_df['wavelength'])
+###flux = np.array(exo_spec_df['flux'])
+###
+#test_spec = Spectrum(wav, flux, 'nm', name='test')
+###print(test_spec.flux)
+###print(test_spec.wav)
+###print(test_spec.wav_unit)
+###print(test_spec.medium)
+##
 #print(test_spec)
-#test_spec2 = test_spec.change_wav_range(750,780)
+#test_spec = test_spec.change_wav_range(750,780)
 #print('change_wav_range:')
 #print('test_spec =\n',test_spec)
-#print('test_spec2 =\n',test_spec2)
+##print('test_spec2 =\n',test_spec2)
 #test_spec = test_spec.change_R(3e5)
 #print('change_R \n',test_spec)
 #test_spec = test_spec.to_air()
 #print('to_air \n',test_spec)
 #test_spec = test_spec.to_vac()
 #print('to_vac \n',test_spec)
+#test_spec = test_spec.normalize()
+#print('normalize \n',test_spec)
+#test_spec = test_spec.to_unit('cm')
+#print('to_unit \n',test_spec)
+#test_spec = test_spec.doppler_shift(20)
+#print('Doppler shift \n',test_spec)
+#print(test_spec.flux) ### Somehow this comes out at nans, even though it works in the notebook??
 
