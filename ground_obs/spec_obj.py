@@ -141,6 +141,7 @@ class Spectrum():
         self.wav = wav_resampled
         self.flux = flux_resampled
         self.wav_range = np.array([wav_min,wav_max])
+        self.R = np.ones(self.wav.shape)*R
         if (self.wav_range!=np.array(wav_min,wav_max)).all():
             print('Final wav_range does not match input wav_range')
 
