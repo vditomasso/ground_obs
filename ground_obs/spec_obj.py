@@ -123,6 +123,27 @@ class Spectrum():
         except ValueError:
             print('ValueError: {} is not an astropy unit. \n Maybe you would like cm, micron, or nm?'.format(new_unit))
 
+
+    def resample(self, wav_min, wav_max, R):
+        new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium, self.name)
+        new_Spectrum._resample(wav_min, wav_max, R)
+        return(new_Spectrum)
+        
+    def _resample(self, wav_min, wav_max, R):
+        '''Change the wavelength range and the resolution at the same time. If this method is performed with the same inputs on different spectra, they should end up on the exact same wavelength grid
+        
+        Directly adapted from Ian's O2/utils.py resample function
+        '''
+        wav_central = (wav_min + wav_max) / 2
+        wav_delta = wav_central / R
+        wav_resampled = np.arange(wav_min, wav_max, wav_delta)
+        flux_resampled = spectres(wav_resampled, self.wav, self.flux)
+        self.wav = wav_resampled
+        self.flux = flux_resampled
+        self.wav_range = np.array([wav_min,wav_max])
+        if (self.wav_range!=np.array(wav_min,wav_max)).all():
+            print('Final wav_range does not match input wav_range')
+
     def change_wav_range(self, wav_min, wav_max):
         new_Spectrum = Spectrum(self.wav, self.flux, self.wav_unit, self.medium, self.name)
         new_Spectrum._change_wav_range(wav_min, wav_max)
@@ -132,7 +153,7 @@ class Spectrum():
         '''Change the wavelength range of the spectrum -- updates the wav and flux attribute to only include the points that fall within the input wavelength range'''
         ### ADD IN A CHECK THAT THE RESULTING MIN(SELF.WAV) AND MAX(SELF.WAV) ACTUALLY MATCH THE INPUT WAV_MIN AND WAV_MAX
         indices = np.where((self.wav>wav_min)&(self.wav<wav_max))
-        if (min(self.wav)<wav_min) and (max(self.wav)>wav_max):
+        if (min(self.wav)<=wav_min) and (max(self.wav)>=wav_max):
         # Check that the input wav_min and wav_max are within the spectrum's original wav_range
             self.wav = self.wav[indices]
             self.flux = self.flux[indices]
